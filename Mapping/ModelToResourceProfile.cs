@@ -1,8 +1,8 @@
+using Activities.Domain.Models;
+using Activities.Resources;
 using AutoMapper;
-using HiredServices.Domain.Models;
-using HiredServices.Resources;
-using Services.Domain.Models;
-using Services.Services.Resources;
+using Reviews.Domain.Models;
+using Reviews.Resources;
 
 namespace Mapping
 {
@@ -10,8 +10,9 @@ namespace Mapping
     {
         public ModelToResourceProfile()
         {
-            CreateMap<Service, ServiceResource>();
-            CreateMap<HiredService, HiredServiceResource>();  
+            CreateMap<Activity, ActivityResource>();
+            CreateMap<AgencyReview, AgencyReviewResource>();
+            CreateMap<ServiceReview, ServiceReviewResource>();
         }
     }
 }

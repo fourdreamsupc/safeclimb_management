@@ -1,17 +1,17 @@
-using HiredServices.Domain.Repositories;
-using HiredServices.Domain.Services;
-using HiredServices.Persistence.Repositories;
-using HiredServices.Services;
 using Mapping;
 using Microsoft.EntityFrameworkCore;
-using Services.Domain.Repositories;
-using Services.Domain.Services;
-using Services.Persistence.Repositories;
-using Services.Services;
 using Shared.Persistence.Contexts;
 using Microsoft.OpenApi.Models;
 using Shared.Domain.Repositories;
 using Shared.Persistence.Repositories;
+using Reviews.Domain.Services;
+using Reviews.Domain.Repositories;
+using Reviews.Services;
+using Reviews.Persistence.Repositories;
+using Activities.Persistence.Repositories;
+using Activities.Domain.Repositories;
+using Activities.Domain.Services;
+using Activities.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,8 +28,8 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "Booking Context - SafeClimb API",
-        Description = "Booking Context including Services and Hired Services",
+        Title = "Management Context - SafeClimb API",
+        Description = "Management Context including Services and Hired Services",
         TermsOfService = new Uri("https://outsidersstartup.github.io/Go2Climb-Landing-Page/"),
         Contact = new OpenApiContact
         {
@@ -47,22 +47,28 @@ builder.Services.AddSwaggerGen(options =>
 
 // Add Database Connection
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("AzureDbConnection");
 // Database Connection with Standard Level for Information and Errors
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseMySQL(connectionString));
+builder.Services.AddDbContext<AppDbContext>(options => 
+{   options.UseMySQL(connectionString);
+    options.LogTo(Console.WriteLine);
+});
 
 // Add lowercase routes
 
 builder.Services.AddRouting(options => 
 options.LowercaseUrls = true);
 
-builder.Services.AddScoped<IHiredServiceRepository, HiredServiceRepository>();
-builder.Services.AddScoped<IHiredServiceService, HiredServiceService>();
+builder.Services.AddScoped<IAgencyReviewService, AgencyReviewService>();
+builder.Services.AddScoped<IAgencyReviewRepository, AgencyReviewsRepository>();
 
-builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
-builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IServiceReviewRepository, ServiceReviewsRepository>();
+builder.Services.AddScoped<IServiceReviewService, ServiceReviewService>();
 
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
@@ -83,7 +89,7 @@ using (var context = scope.ServiceProvider.GetService<AppDbContext>())
 
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
